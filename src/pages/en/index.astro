@@ -1,0 +1,40 @@
+---
+import CVLayout from '../../layouts/CVLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Hero from '../../components/Hero.astro';
+import Experience from '../../components/Experience.astro';
+import Education from '../../components/Education.astro';
+import Skills from '../../components/Skills.astro';
+import Projects from '../../components/Projects.astro';
+import { cvEn } from '../../data/cv.en';
+
+const cv = cvEn;
+const lang = 'en' as const;
+---
+
+<CVLayout title={`${cv.personal.name} — CV`} lang={lang}>
+  <Navbar lang={lang} />
+  <main>
+    <Hero personal={cv.personal} lang={lang} />
+    <Experience experience={cv.experience} lang={lang} />
+    <Education education={cv.education} languages={cv.languages} lang={lang} />
+    <Skills skills={cv.skills} lang={lang} />
+    <Projects projects={cv.projects} lang={lang} />
+  </main>
+  <footer class="cv-footer">
+    <p>© {new Date().getFullYear()} {cv.personal.name} · All rights reserved</p>
+  </footer>
+</CVLayout>
+
+<style>
+  .cv-footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: #2A2A3D;
+  }
+</style>

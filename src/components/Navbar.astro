@@ -1,0 +1,173 @@
+---
+interface Props {
+  lang: 'es' | 'en';
+}
+
+const { lang } = Astro.props;
+const otherLang = lang === 'es' ? 'en' : 'es';
+const otherLabel = lang === 'es' ? 'English' : 'Español';
+const downloadLabel = lang === 'es' ? 'Descargar CV' : 'Download CV';
+---
+
+<nav class="topbar">
+  <div class="topbar-inner">
+    <span class="topbar-brand">MC</span>
+
+    <div class="topbar-actions">
+      <!-- Toggle tema -->
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Cambiar tema">
+        <span id="theme-icon">☽</span>
+      </button>
+
+      <!-- Switch idioma -->
+      <a href={`/${otherLang}`} class="lang-switch" title={otherLabel}>
+        <span class="lang-active">{lang.toUpperCase()}</span>
+        <span class="lang-divider">/</span>
+        <span class="lang-other">{otherLang.toUpperCase()}</span>
+      </a>
+
+      <!-- Botón descarga -->
+      <a
+        href={`/downloads/cv-mauricio-cruz-${lang}.pdf`}
+        download={`cv-mauricio-cruz-${lang}.pdf`}
+        class="download-btn"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span class="btn-label">{downloadLabel}</span>
+      </a>
+    </div>
+  </div>
+</nav>
+<div class="read-progress" id="read-progress"></div>
+
+<style>
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topbar-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0.8rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  /* Toggle tema */
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border-card);
+    color: var(--text-3);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Switch idioma */
+  .lang-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .lang-switch:hover { opacity: 0.8; }
+  .lang-active { color: var(--gold); font-weight: 500; }
+  .lang-divider { color: var(--text-4); }
+  .lang-other { color: var(--text-3); }
+
+  /* Botón descarga */
+  .download-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 1rem;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-line);
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .download-btn:hover {
+    background: rgba(212,168,67,0.18);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 640px) {
+    .topbar-inner { padding: 0.7rem 1.25rem; }
+    .btn-label { display: none; }
+    .download-btn { padding: 0.45rem 0.7rem; }
+  }
+</style>
+
+
+<style>
+  .read-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--gold), rgba(212,168,67,0.4));
+    z-index: 200;
+    transition: width 0.1s linear;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  const bar = document.getElementById('read-progress');
+  window.addEventListener('scroll', () => {
+    if (!bar) return;
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = pct + '%';
+  });
+</script>

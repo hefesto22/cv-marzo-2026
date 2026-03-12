@@ -1,0 +1,105 @@
+---
+import type { SkillCategory } from '../data/types';
+
+interface Props {
+  skills: SkillCategory[];
+  lang: 'es' | 'en';
+}
+
+const { skills, lang } = Astro.props;
+const sectionTitle = lang === 'es' ? 'Habilidades' : 'Skills';
+---
+
+<section class="cv-section reveal">
+  <div class="section-header">
+    <span class="section-tag">03</span>
+    <h2 class="section-title">{sectionTitle}</h2>
+  </div>
+
+  <div class="skills-grid">
+    {skills.map((category) => (
+      <div class="skill-category">
+        <h3 class="category-label">{category.category}</h3>
+        <div class="skill-tags">
+          {category.skills.map((skill) => (
+            <span class="skill-tag">{skill}</span>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .cv-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3.5rem 2rem;
+    border-bottom: 1px solid var(--section-sep);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2rem;
+  }
+
+  .category-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .skill-tag {
+    font-size: 0.775rem;
+    padding: 0.3rem 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 2px;
+    color: var(--text-2);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .skill-tag:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold-line);
+    color: var(--gold);
+  }
+
+  @media (max-width: 640px) {
+    .cv-section { padding: 2.5rem 1.25rem; }
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

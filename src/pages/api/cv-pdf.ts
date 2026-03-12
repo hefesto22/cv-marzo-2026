@@ -1,0 +1,250 @@
+// ============================================================
+// /api/cv-pdf.ts — Endpoint SSR para PDF dinámico
+// Genera el PDF desde los datos actuales del CV
+// ============================================================
+
+import type { APIRoute } from 'astro';
+import { cvEs } from '../../data/cv.es';
+import { cvEn } from '../../data/cv.en';
+import type { CV } from '../../data/types';
+
+export const prerender = false; // SSR obligatorio
+
+// Genera el HTML del CV para convertir a PDF
+function buildCVHtml(cv: CV, lang: 'es' | 'en'): string {
+  const presentLabel = lang === 'es' ? 'Actualmente' : 'Present';
+  const labels = {
+    objective: lang === 'es' ? 'Objetivo Profesional' : 'Professional Summary',
+    experience: lang === 'es' ? 'Experiencia' : 'Experience',
+    education: lang === 'es' ? 'Educación' : 'Education',
+    skills: lang === 'es' ? 'Habilidades' : 'Skills',
+    projects: lang === 'es' ? 'Proyectos' : 'Projects',
+    languages: lang === 'es' ? 'Idiomas' : 'Languages',
+    internal: lang === 'es' ? 'Sistema interno' : 'Internal system',
+  };
+
+  return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: #1C1C28;
+      background: #FAFAF7;
+      font-size: 9pt;
+      line-height: 1.5;
+    }
+
+    .page { max-width: 800px; margin: 0 auto; padding: 40px 48px; }
+
+    /* Header */
+    .header { border-bottom: 2px solid #D4A843; padding-bottom: 20px; margin-bottom: 24px; }
+    .name { font-family: 'Playfair Display', serif; font-size: 28pt; font-weight: 700; color: #0A0A0F; letter-spacing: -0.02em; }
+    .title-line { font-size: 9pt; color: #64748B; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; margin-bottom: 12px; }
+    .contact-row { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 8pt; color: #64748B; }
+    .contact-row a { color: #64748B; text-decoration: none; }
+
+    /* Secciones */
+    .section { margin-bottom: 20px; }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 11pt;
+      font-weight: 600;
+      color: #0A0A0F;
+      border-bottom: 1px solid #D4A843;
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-num { font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #D4A843; }
+
+    /* Resumen */
+    .summary { font-size: 8.5pt; color: #64748B; line-height: 1.7; border-left: 2px solid #D4A843; padding-left: 12px; }
+
+    /* Experiencia */
+    .exp-item { display: grid; grid-template-columns: 140px 1fr; gap: 12px; margin-bottom: 14px; }
+    .exp-dates { font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #64748B; text-align: right; padding-top: 2px; }
+    .exp-dates .current { color: #D4A843; }
+    .exp-role { font-size: 9.5pt; font-weight: 600; color: #0A0A0F; }
+    .exp-company { font-size: 7.5pt; color: #64748B; margin-bottom: 6px; }
+    .exp-bullets { list-style: none; }
+    .exp-bullets li { font-size: 8pt; color: #64748B; margin-bottom: 3px; padding-left: 10px; position: relative; }
+    .exp-bullets li::before { content: '›'; position: absolute; left: 0; color: #D4A843; }
+
+    /* Educación */
+    .edu-item { margin-bottom: 10px; padding-left: 10px; border-left: 2px solid rgba(212,168,67,0.4); }
+    .edu-degree { font-size: 9pt; font-weight: 600; color: #0A0A0F; }
+    .edu-institution { font-size: 8pt; color: #64748B; }
+    .edu-period { font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #94A3B8; }
+
+    /* Skills */
+    .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .skill-cat-label { font-family: 'JetBrains Mono', monospace; font-size: 6.5pt; letter-spacing: 0.15em; text-transform: uppercase; color: #D4A843; margin-bottom: 4px; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+    .skill-tag { font-size: 7pt; padding: 1px 6px; background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.25); color: #64748B; }
+
+    /* Proyectos */
+    .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .project-card { border: 1px solid rgba(212,168,67,0.2); padding: 10px 12px; }
+    .project-name { font-family: 'Playfair Display', serif; font-size: 9.5pt; font-weight: 600; color: #0A0A0F; }
+    .project-client { font-size: 7pt; color: #94A3B8; margin-bottom: 5px; }
+    .project-desc { font-size: 7.5pt; color: #64748B; line-height: 1.6; margin-bottom: 6px; }
+    .project-stack { display: flex; flex-wrap: wrap; gap: 3px; }
+    .project-tech { font-family: 'JetBrains Mono', monospace; font-size: 6pt; padding: 1px 5px; background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.2); color: #D4A843; }
+
+    /* Idiomas */
+    .lang-row { display: flex; justify-content: space-between; padding: 4px 8px; margin-bottom: 4px; background: rgba(212,168,67,0.04); }
+    .lang-name { font-size: 8.5pt; font-weight: 500; color: #0A0A0F; }
+    .lang-level { font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #D4A843; }
+
+    /* Two column layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- Header -->
+  <div class="header">
+    <div class="name">${cv.personal.name}</div>
+    <div class="title-line">${cv.personal.title}</div>
+    <div class="contact-row">
+      <a href="mailto:${cv.personal.email}">${cv.personal.email}</a>
+      <span>${cv.personal.phone}</span>
+      <span>${cv.personal.location}</span>
+      <a href="${cv.personal.linkedin}">LinkedIn</a>
+      <a href="${cv.personal.website}">${cv.personal.website.replace('https://', '')}</a>
+    </div>
+  </div>
+
+  <!-- Resumen -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">01</span> ${labels.objective}</div>
+    <p class="summary">${cv.personal.summary}</p>
+  </div>
+
+  <!-- Experiencia -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">02</span> ${labels.experience}</div>
+    ${cv.experience.map(exp => `
+      <div class="exp-item">
+        <div class="exp-dates">
+          ${exp.startDate}<br/>—<br/><span class="current">${exp.endDate ?? presentLabel}</span>
+        </div>
+        <div>
+          <div class="exp-role">${exp.role}</div>
+          <div class="exp-company">${exp.company} · ${exp.location}</div>
+          <ul class="exp-bullets">
+            ${exp.description.map(d => `<li>${d}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+
+  <!-- Educación + Idiomas -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title"><span class="section-num">03</span> ${labels.education}</div>
+      ${cv.education.map(edu => `
+        <div class="edu-item">
+          <div class="edu-period">${edu.startDate} — ${edu.endDate}</div>
+          <div class="edu-degree">${edu.degree}</div>
+          <div class="edu-institution">${edu.institution}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="section">
+      <div class="section-title"><span class="section-num">04</span> ${labels.languages}</div>
+      ${cv.languages.map(l => `
+        <div class="lang-row">
+          <span class="lang-name">${l.name}</span>
+          <span class="lang-level">${l.level}</span>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- Habilidades -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">05</span> ${labels.skills}</div>
+    <div class="skills-grid">
+      ${cv.skills.map(cat => `
+        <div>
+          <div class="skill-cat-label">${cat.category}</div>
+          <div class="skill-tags">
+            ${cat.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- Proyectos -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">06</span> ${labels.projects}</div>
+    <div class="projects-grid">
+      ${cv.projects.map(p => `
+        <div class="project-card">
+          <div class="project-name">${p.name}</div>
+          <div class="project-client">${p.client} · ${p.year}</div>
+          <div class="project-desc">${p.description}</div>
+          <div class="project-stack">
+            ${p.stack.map(t => `<span class="project-tech">${t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+export const GET: APIRoute = async ({ request }) => {
+  const url = new URL(request.url);
+  const lang = (url.searchParams.get('lang') ?? 'es') as 'es' | 'en';
+  const cv = lang === 'es' ? cvEs : cvEn;
+
+  try {
+    // @ts-ignore — disponible en Cloudflare Workers
+    const puppeteer = await import('@cloudflare/puppeteer');
+    // @ts-ignore
+    const browser = await puppeteer.default.launch(env.MYBROWSER);
+    const page = await browser.newPage();
+
+    const html = buildCVHtml(cv, lang);
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '0', right: '0', bottom: '0', left: '0' },
+    });
+
+    await browser.close();
+
+    const filename = `cv-mauricio-cruz-${lang}.pdf`;
+
+    return new Response(pdf, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Cache-Control': 'no-cache',
+      },
+    });
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    return new Response(JSON.stringify({ error: 'PDF generation failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+};

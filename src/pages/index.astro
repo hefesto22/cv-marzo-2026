@@ -1,0 +1,13 @@
+---
+// Detecta el idioma del navegador y redirige
+// Esta página nunca se renderiza visualmente
+
+export const prerender = false; // SSR para leer headers
+
+const acceptLanguage = Astro.request.headers.get('accept-language') ?? '';
+const prefersSpanish = acceptLanguage.toLowerCase().includes('es');
+
+const redirectTo = prefersSpanish ? '/es' : '/en';
+
+return Astro.redirect(redirectTo, 302);
+---

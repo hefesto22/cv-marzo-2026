@@ -1,0 +1,274 @@
+---
+import type { Personal } from '../data/types';
+
+interface Props {
+  personal: Personal;
+  lang: 'es' | 'en';
+}
+
+const { personal, lang } = Astro.props;
+
+const labels = {
+  es: {
+    eyebrow: 'Currículum Vitae',
+  },
+  en: {
+    eyebrow: 'Curriculum Vitae',
+  }
+}[lang];
+---
+
+<header class="hero reveal">
+
+  <div class="hero-inner">
+    <div class="hero-layout">
+      <!-- Identidad -->
+      <div class="hero-identity">
+        <p class="hero-eyebrow">
+          <span class="eyebrow-line"></span>
+          {labels.eyebrow}
+        </p>
+        <h1 class="hero-name">{personal.name}</h1>
+        <p class="hero-title" data-title={personal.title}>
+          <span id="typing-title"></span><span class="typing-cursor">|</span>
+        </p>
+      </div>
+
+      <!-- Contacto -->
+      <div class="hero-contact">
+        <a href={`mailto:${personal.email}`} class="contact-item" target="_blank" rel="noopener">
+          <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m2 7 10 7 10-7"/>
+          </svg>
+          <span>{personal.email}</span>
+        </a>
+
+        <a href={personal.phone} class="contact-item" target="_blank" rel="noopener">
+          <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15.46l-5.27-.61-2.52 2.52a15.05 15.05 0 0 1-6.59-6.59l2.53-2.53L8.54 3H3.03C2.45 13.18 10.82 21.55 21 20.97l.03-5.51z"/>
+          </svg>
+          <span>+504 3301 2826</span>
+          <span class="contact-badge">WhatsApp</span>
+        </a>
+
+        <span class="contact-item no-link">
+          <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            <circle cx="12" cy="9" r="2.5"/>
+          </svg>
+          <span>{personal.location}</span>
+        </span>
+
+        <a href={personal.linkedin} class="contact-item" target="_blank" rel="noopener">
+          <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          <span>LinkedIn</span>
+        </a>
+
+        <a href={personal.website} class="contact-item" target="_blank" rel="noopener">
+          <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <span>{personal.website.replace('https://', '')}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Divisor -->
+    <div class="hero-divider">
+      <div class="divider-line"></div>
+      <div class="divider-diamond"></div>
+      <div class="divider-line"></div>
+    </div>
+    <!-- Resumen -->
+    <blockquote class="hero-summary">
+      {personal.summary}
+    </blockquote>
+
+  </div>
+</header>
+
+<style>
+  .hero {
+    position: relative;
+    padding: 3.5rem 2rem 3rem;
+    border-bottom: 1px solid var(--section-sep);
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-line), transparent);
+  }
+
+  .hero-inner { max-width: 900px; margin: 0 auto; position: relative; }
+
+  .hero-layout {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+  }
+
+  .eyebrow-line { display: block; width: 36px; height: 1px; background: var(--gold); opacity: 0.6; }
+
+  .hero-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .hero-title {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .hero-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding-top: 0.2rem;
+    min-width: 220px;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--text-2);
+    text-decoration: none;
+    padding: 0.35rem 0.6rem;
+    border-radius: 3px;
+    transition: all 0.18s ease;
+  }
+
+  .contact-item:not(.no-link):hover {
+    color: var(--gold);
+    background: var(--gold-dim);
+    padding-left: 0.85rem;
+  }
+
+  .no-link { cursor: default; }
+  .contact-icon { width: 13px; height: 13px; flex-shrink: 0; color: var(--gold); opacity: 0.75; }
+
+  .contact-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    padding: 0.1rem 0.4rem;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-line);
+    color: var(--gold);
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: var(--gold-line); opacity: 0.5; }
+  .divider-diamond { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); }
+
+  .hero-summary {
+    font-size: 0.925rem;
+    line-height: 1.85;
+    color: var(--text-2);
+    max-width: 680px;
+    padding: 1rem 1.25rem;
+    border-left: 2px solid var(--gold-line);
+    background: var(--summary-bg);
+    font-style: normal;
+    margin-bottom: 2rem;
+  }
+
+
+
+  /* ── Typing cursor ── */
+  .typing-cursor {
+    display: inline-block;
+    color: var(--gold);
+    font-weight: 300;
+    animation: blink 1s step-end infinite;
+    margin-left: 1px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  @media (max-width: 700px) {
+  }
+
+  @media (max-width: 700px) {
+    .hero { padding: 2.5rem 1.25rem 2rem; }
+    .hero-layout { grid-template-columns: 1fr; }
+    .hero-contact { flex-direction: row; flex-wrap: wrap; gap: 0.3rem; }
+    .counter-val { font-size: 1.1rem; }
+    .metrics-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+
+
+
+<script>
+  // ── Typing effect ──
+  const titleEl = document.getElementById('typing-title');
+  const cursorEl = document.querySelector('.typing-cursor') as HTMLElement | null;
+  const text = titleEl?.closest('.hero-title')?.getAttribute('data-text') || 
+               document.querySelector('meta[name="cv-title"]')?.getAttribute('content') || 
+               'Desarrollador Full Stack';
+
+  // Leer el texto desde el data attribute o fallback
+  const rawTitle = (document.querySelector('.hero-title') as HTMLElement)?.dataset.title || 'Desarrollador Full Stack';
+
+  if (titleEl) {
+    let i = 0;
+    const speed = 55;
+    function type() {
+      if (i < rawTitle.length) {
+        (titleEl as HTMLElement).textContent += rawTitle[i];
+        i++;
+        setTimeout(type, speed);
+      } else {
+        // Ocultar cursor al terminar (después de 2s)
+        setTimeout(() => {
+          if (cursorEl) cursorEl.style.opacity = '0';
+        }, 2000);
+      }
+    }
+    setTimeout(type, 600);
+  }
+
+</script>

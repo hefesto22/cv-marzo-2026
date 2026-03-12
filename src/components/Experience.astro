@@ -1,0 +1,332 @@
+---
+import type { Experience } from '../data/types';
+
+interface Props {
+  experience: Experience[];
+  lang: 'es' | 'en';
+}
+
+const { experience, lang } = Astro.props;
+const presentLabel = lang === 'es' ? 'Actualmente' : 'Present';
+const sectionTitle = lang === 'es' ? 'Experiencia' : 'Experience';
+
+const bulletDetails: Record<string, string[]> = {
+  // ── INVERSIONES OLYMPO ES ──
+  'es-0-0': [
+    'Diseño de arquitectura hexagonal en Laravel: separación estricta de Domain, Application e Infrastructure con interfaces de repositorio.',
+    'Implementación de CQRS ligero — comandos para escritura, queries para lectura — reduciendo acoplamiento entre módulos.',
+    'Uso de Service Providers y Contracts para inversión de dependencias, facilitando el reemplazo de implementaciones sin romper lógica de negocio.',
+    'Optimización de queries N+1 con Eager Loading y Query Builder, logrando reducciones de hasta 70% en tiempo de respuesta en listados críticos.',
+    'Creación de módulos reutilizables con Livewire y Inertia.js según el tipo de interactividad requerida por cada sección.',
+  ],
+  'es-0-1': [
+    'Pipelines CI/CD con GitHub Actions: lint con Pint, tests con Pest, build y deploy automático a VPS vía SSH.',
+    'Cobertura de tests superior al 80% en módulos de facturación y control de acceso usando feature y unit tests.',
+    'Implementación de Laravel Sanctum para autenticación API stateless con rotación de tokens.',
+    'Hardening de servidores Nginx: cabeceras de seguridad, rate limiting por IP, bloqueo de rutas sensibles.',
+    'Auditorías mensuales de permisos de roles con Spatie Laravel Permission, evitando escalada de privilegios.',
+  ],
+  'es-0-2': [
+    'Gestión de proyectos en sprints de 2 semanas con backlog priorizado en Notion.',
+    'Coordinación directa con clientes para refinamiento de requerimientos y validación de prototipos antes de cada sprint.',
+    'Estimación de tareas con planning poker adaptado y control de deuda técnica en cada retrospectiva.',
+    'Documentación técnica viva en Notion: diagramas de flujo, decisiones de arquitectura (ADRs) y guías de onboarding.',
+  ],
+  // ── DIPROMA ES ──
+  'es-1-0': [
+    'Desarrollo de módulos de órdenes de servicio, inventario de piezas y asignación de técnicos desde cero en Laravel.',
+    'Migración progresiva de sistema legacy PHP puro a Laravel, manteniendo compatibilidad con datos existentes.',
+    'Implementación de panel administrativo con Filament para gestión de usuarios, roles y registros operativos.',
+    'Diseño de esquema de base de datos normalizado (3FN) para control de equipos, piezas y servicios.',
+  ],
+  'es-1-1': [
+    'Generación de reportes PDF con Barryvdh/DomPDF y Excel con Maatwebsite/Excel, exportando datos de ventas y servicios.',
+    'Automatización del flujo de aprobación: solicitud → revisión supervisor → ejecución técnico → cierre → factura, con notificaciones por email.',
+    'Migración de más de 3,000 registros históricos desde hojas de cálculo Excel a MySQL con scripts de importación validados.',
+    'Implementación de Jobs en cola para generación asíncrona de reportes pesados sin bloquear la interfaz.',
+  ],
+  'es-1-2': [
+    'Diagnóstico de errores críticos en producción mediante análisis de logs de Laravel Telescope y registros de Nginx.',
+    'Documentación de procedimientos técnicos: guías de instalación, flujos de módulos y manuales de usuario en PDF.',
+    'Capacitación presencial al equipo administrativo en uso del sistema, reduciendo tickets de soporte en un 40%.',
+    'Mantenimiento de entorno de staging para validar cambios antes de cada despliegue en producción.',
+  ],
+
+  // ── INVERSIONES OLYMPO EN ──
+  'en-0-0': [
+    'Hexagonal architecture in Laravel: strict separation of Domain, Application, and Infrastructure with repository interfaces.',
+    'Lightweight CQRS implementation — commands for writes, queries for reads — reducing coupling between modules.',
+    'Service Providers and Contracts for dependency inversion, enabling implementation swaps without breaking business logic.',
+    'N+1 query optimization with Eager Loading and Query Builder, achieving up to 70% response time reduction on critical listings.',
+    'Reusable modules built with Livewire or Inertia.js depending on the interactivity required by each section.',
+  ],
+  'en-0-1': [
+    'CI/CD pipelines with GitHub Actions: Pint linting, Pest tests, and automated deploy to VPS via SSH.',
+    'Over 80% test coverage on billing and access control modules using feature and unit tests.',
+    'Laravel Sanctum for stateless API authentication with token rotation.',
+    'Nginx server hardening: security headers, per-IP rate limiting, and blocking of sensitive routes.',
+    'Monthly permission audits with Spatie Laravel Permission to prevent privilege escalation.',
+  ],
+  'en-0-2': [
+    '2-week sprint management with prioritized backlog in Notion.',
+    'Direct client coordination for requirement refinement and prototype validation before each sprint.',
+    'Task estimation with adapted planning poker and technical debt tracking in retrospectives.',
+    'Living technical documentation in Notion: flow diagrams, architecture decision records (ADRs), and onboarding guides.',
+  ],
+  // ── DIPROMA EN ──
+  'en-1-0': [
+    'Built service order, parts inventory, and technician assignment modules from scratch in Laravel.',
+    'Progressive migration from legacy plain PHP to Laravel while maintaining compatibility with existing data.',
+    'Admin panel implemented with Filament for user, role, and operational record management.',
+    'Normalized database schema (3NF) designed for equipment, parts, and service tracking.',
+  ],
+  'en-1-1': [
+    'PDF reports with Barryvdh/DomPDF and Excel exports with Maatwebsite/Excel for sales and service data.',
+    'Automated approval workflow: request → supervisor review → technician execution → close → invoice, with email notifications.',
+    'Migration of 3,000+ historical records from Excel spreadsheets to MySQL via validated import scripts.',
+    'Queued Jobs for asynchronous generation of heavy reports without blocking the UI.',
+  ],
+  'en-1-2': [
+    'Critical production bug diagnosis using Laravel Telescope logs and Nginx access/error logs.',
+    'Technical documentation: installation guides, module flowcharts, and user manuals in PDF.',
+    'On-site staff training that reduced support tickets by 40%.',
+    'Staging environment maintained to validate all changes before each production deployment.',
+  ],
+};
+---
+
+<section class="cv-section reveal">
+  <div class="section-header">
+    <span class="section-tag">01</span>
+    <h2 class="section-title">{sectionTitle}</h2>
+  </div>
+
+  <div class="timeline">
+    {experience.map((exp, expIdx) => (
+      <article class="timeline-item">
+        <div class="timeline-dates">
+          <span class="date-start">{exp.startDate}</span>
+          <span class="date-sep">—</span>
+          <span class="date-end">{exp.endDate ?? presentLabel}</span>
+        </div>
+
+        <div class="timeline-connector">
+          <div class="connector-dot"></div>
+          <div class="connector-line"></div>
+        </div>
+
+        <div class="timeline-content">
+          <h3 class="exp-role">{exp.role}</h3>
+          <p class="exp-company">{exp.company} · {exp.location}</p>
+          <ul class="exp-bullets">
+            {exp.description.map((item, bulletIdx) => {
+              const key = `${lang}-${expIdx}-${bulletIdx}`;
+              const details = bulletDetails[key] || [];
+              return (
+                <li
+                  class="exp-bullet"
+                  data-key={key}
+                  data-has-details={details.length > 0 ? 'true' : 'false'}
+                  onclick="toggleBullet(this)"
+                >
+                  <span class="bullet-mark">›</span>
+                  <div class="bullet-body">
+                    <div class="bullet-top">
+                      <span class="bullet-text">{item}</span>
+                      {details.length > 0 && (
+                        <svg class="hint-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                      )}
+                    </div>
+                    {details.length > 0 && (
+                      <ul class="bullet-details">
+                        {details.map(d => (
+                          <li class="detail-item">
+                            <span class="detail-dot">·</span>
+                            <span>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .cv-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3.5rem 2rem;
+    border-bottom: 1px solid var(--section-sep);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.55rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .timeline { display: flex; flex-direction: column; }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 150px 24px 1fr;
+    gap: 0 1.5rem;
+  }
+
+  .timeline-dates {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-top: 0.1rem;
+    gap: 0.1rem;
+  }
+
+  .date-start { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--text-3); }
+  .date-end { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--gold); font-weight: 500; }
+  .date-sep { color: var(--text-4); font-size: 0.6rem; }
+
+  .timeline-connector { display: flex; flex-direction: column; align-items: center; }
+
+  .connector-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--dot-border);
+    outline: 1px solid var(--gold-line);
+    flex-shrink: 0;
+    margin-top: 0.22rem;
+  }
+
+  .connector-line {
+    flex: 1; width: 1px;
+    background: var(--gold-line);
+    margin-top: 4px; opacity: 0.5;
+  }
+
+  .timeline-content { padding-bottom: 2.5rem; }
+
+  .exp-role { font-size: 0.975rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+  .exp-company { font-size: 0.78rem; color: var(--text-3); margin-bottom: 1rem; letter-spacing: 0.03em; }
+
+  .exp-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+
+  .exp-bullet {
+    display: flex;
+    gap: 0.7rem;
+    font-size: 0.865rem;
+    color: var(--text-2);
+    line-height: 1.65;
+    border-radius: 4px;
+    padding: 0.4rem 0.5rem;
+    margin: 0 -0.5rem;
+  }
+
+  .exp-bullet[data-has-details="true"] { cursor: pointer; }
+
+  .exp-bullet[data-has-details="true"]:hover {
+    background: var(--gold-dim);
+  }
+
+  .exp-bullet.open { background: var(--gold-dim); }
+
+  .bullet-mark {
+    color: var(--gold); flex-shrink: 0;
+    font-size: 1rem; line-height: 1.45; opacity: 0.8;
+  }
+
+  .bullet-body { display: flex; flex-direction: column; flex: 1; }
+
+  .bullet-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .bullet-text { flex: 1; }
+
+  .hint-chevron {
+    width: 14px; height: 14px;
+    color: var(--gold); opacity: 0.45;
+    flex-shrink: 0; margin-top: 0.2rem;
+    transition: transform 0.25s ease, opacity 0.2s;
+  }
+
+  .exp-bullet.open .hint-chevron { transform: rotate(180deg); opacity: 1; }
+
+  /* Detalles expandibles */
+  .bullet-details {
+    list-style: none;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-top: 0;
+    transition: max-height 0.38s ease, opacity 0.3s ease, margin-top 0.3s ease;
+  }
+
+  .exp-bullet.open .bullet-details {
+    max-height: 400px;
+    opacity: 1;
+    margin-top: 0.65rem;
+  }
+
+  .detail-item {
+    display: flex;
+    gap: 0.55rem;
+    font-size: 0.795rem;
+    color: var(--text-2);
+    line-height: 1.65;
+    padding: 0.22rem 0 0.22rem 0.75rem;
+    border-left: 1px solid var(--gold-line);
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-dot { color: var(--gold); flex-shrink: 0; line-height: 1.4; }
+
+  @media (max-width: 640px) {
+    .cv-section { padding: 2.5rem 1.25rem; }
+    .timeline-item { grid-template-columns: 1fr; gap: 0.4rem; }
+    .timeline-dates { flex-direction: row; align-items: center; gap: 0.4rem; }
+    .timeline-connector { display: none; }
+  }
+  .timeline {
+    position: relative;
+    z-index: 1;
+  }
+
+</style>
+
+<script>
+  (window as any).toggleBullet = function(el: HTMLElement) {
+    if (el.dataset.hasDetails !== 'true') return;
+    const isOpen = el.classList.contains('open');
+    document.querySelectorAll('.exp-bullet.open').forEach(b => b.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+  }
+  
+</script>
