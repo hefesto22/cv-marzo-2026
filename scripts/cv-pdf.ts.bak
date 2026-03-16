@@ -1,4 +1,6 @@
-// ============================================================
+
+export const prerender = true; // SSR obligatorio
+// // ============================================================
 // /api/cv-pdf.ts — Endpoint SSR para PDF dinámico
 // Genera el PDF desde los datos actuales del CV
 // ============================================================
@@ -8,7 +10,7 @@ import { cvEs } from '../../data/cv.es';
 import { cvEn } from '../../data/cv.en';
 import type { CV } from '../../data/types';
 
-export const prerender = false; // SSR obligatorio
+
 
 // Genera el HTML del CV para convertir a PDF
 function buildCVHtml(cv: CV, lang: 'es' | 'en'): string {
