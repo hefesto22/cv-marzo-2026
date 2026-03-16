@@ -1,0 +1,8 @@
+Options -MultiViews
+RewriteEngine On
+RewriteBase /
+
+RewriteRule ^es/?$ es/index.html [L]
+RewriteRule ^en/?$ en/index.html [L]
+
+DirectoryIndex index.html
